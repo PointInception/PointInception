@@ -6,6 +6,7 @@
 #include <liblas\liblas.hpp>
 #include <liblas\point.hpp>
 #include "voxel_center.h"
+#include <windows.h>
 
 #include <iostream>
 #include <vector>
@@ -13,13 +14,13 @@
 
 DEFINE_string(las_path, "", "point cloud file (.las) path");
 DEFINE_string(output_dir, "", "output dir");
-DEFINE_double(octree_res,6.0,"octree resolution");
-DEFINE_int32(output_dep,4,"number of depth");
+DEFINE_double(output_res, 0.5, "depth 1 output resolution");
+DEFINE_double(octree_res, 0.5, "octree resolution");
+DEFINE_int32(output_dep, 4, "number of depth");
 
 double goffset_x = 0.0;
 double goffset_y = 0.0;
 double goffset_z = 0.0;
-
 int ReadLas(const std::string &file_name, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
 	std::ifstream ifs;
@@ -65,9 +66,9 @@ int ReadLas(const std::string &file_name, pcl::PointCloud<pcl::PointXYZ>::Ptr cl
 	{
 		const liblas::Point & p = reader->GetPoint();
 
-		cloud_ptr->points[index].x = p.GetX();
-		cloud_ptr->points[index].y = p.GetY();
-		cloud_ptr->points[index].z = p.GetZ();
+		cloud_ptr->points[index].x = p.GetX() - goffset_x;
+		cloud_ptr->points[index].y = p.GetY() - goffset_y;
+		cloud_ptr->points[index].z = p.GetZ() - goffset_z;
 		++index;
 	}
 	if (reader)
@@ -161,6 +162,7 @@ int main(int argc, char** argv)
 	gflags::ParseCommandLineFlags(&argc,&argv,true);
 	std::string las_path = FLAGS_las_path;
 	std::string output_dir = FLAGS_output_dir;
+	double output_res = FLAGS_output_res;
 	double octree_res = FLAGS_octree_res;
 	int output_dep = FLAGS_output_dep;
 
@@ -174,6 +176,18 @@ int main(int argc, char** argv)
 	{
 		std::cout << "output dir can not be empty." << std::endl;
 		return 0;
+	}
+
+	std::replace(las_path.begin(), las_path.end(), '\\', '/');
+	int pos = las_path.find_last_of('/');
+	std::string las_name = las_path.substr(pos + 1);
+	pos = las_name.find_last_of('.');
+	las_name = las_name.substr(0, pos);
+
+	std::replace(output_dir.begin(), output_dir.end(), '\\', '/');
+	if ('/' != output_dir[output_dir.size() - 1])
+	{
+		output_dir = output_dir + "/";
 	}
 
 	using CloudXYZ = pcl::PointCloud<pcl::PointXYZ>;
@@ -192,7 +206,7 @@ int main(int argc, char** argv)
 	pcl::getMinMax3D(*cloud_ptr, min_pt, max_pt);
 
 	VoxelCenter voxel_center(max_pt, min_pt);
-	voxel_center.SetResoluton(0.5);
+	voxel_center.SetResoluton(output_res);
 
 	for (int depth = 0; depth < output_dep; ++depth)
 	{
@@ -235,9 +249,11 @@ int main(int argc, char** argv)
 				std::cout << std::to_string(i) <<"/"<< std::to_string(center_point_ptr->size()) << std::endl;
 			}
 		}
-		std::string output_str = "C:\\Users\\Air\\Desktop\\cp"+std::to_string(depth+1)+".las";
+		std::string output_str = output_dir + las_name + "_d" + std::to_string(depth + 1) + ".las";
 		WriteLas(output_str, filtered_cloud);
 	}
+
+	CopyFile(las_path.c_str(), (output_dir + las_name + "_d0.las").c_str(), true);
 
 	return 0;
 }
