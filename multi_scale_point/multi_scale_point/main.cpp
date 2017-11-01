@@ -114,9 +114,7 @@ void WriteLas(std::string filename, pcl::PointCloud<pcl::PointXYZ> &filtered_clo
 			//int_value = (double_value-offset)/scale
 			header.SetOffset(static_cast<double>(minP.x + goffset_x), static_cast<double>(minP.y + goffset_y), static_cast<double>(minP.z + goffset_z));
 
-			header.SetScale(1.0e-9 * std::max<double>(xx, 1.0e-8), //result must fit in 32bits?!
-				1.0e-9 * std::max<double>(yy, 1.0e-8),
-				1.0e-9 * std::max<double>(zz, 1.0e-8));
+			header.SetScale(0.001, 0.001, 0.001);
 		}
 		int m_ptnum = filtered_cloud.size();
 
@@ -251,6 +249,7 @@ int main(int argc, char** argv)
 		}
 		std::string output_str = output_dir + las_name + "_d" + std::to_string(depth + 1) + ".las";
 		WriteLas(output_str, filtered_cloud);
+		filtered_cloud.clear();
 	}
 
 	CopyFile(las_path.c_str(), (output_dir + las_name + "_d0.las").c_str(), true);
