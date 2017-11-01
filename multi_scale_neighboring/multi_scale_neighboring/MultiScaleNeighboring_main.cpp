@@ -25,6 +25,7 @@ struct Pointneighbor //only 1 and 0
 	int label;
 	std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> scaleneighbor;
 };
+
 std::string wstring2string(std::wstring wstr)
 {
 	std::string result;
@@ -38,6 +39,7 @@ std::string wstring2string(std::wstring wstr)
 	delete[] buffer;
 	return result;
 }
+
 std::vector<std::string> getfilelist(std::string las_name, std::string &file_folder)
 {
 	int index = las_name.rfind('\\');
@@ -60,6 +62,7 @@ std::vector<std::string> getfilelist(std::string las_name, std::string &file_fol
 	} while (_findnext(hFile, &fileInfo) == 0);
 	return file_list;
 }
+
 std::string getfile(std::string las_name, std::string &file_folder)
 {
 	std::string label_name;
@@ -83,6 +86,7 @@ std::string getfile(std::string las_name, std::string &file_folder)
 	} while (_findnext(hFile, &fileInfo) == 0);
 	return label_name;
 }
+
 std::vector<std::string> select_las(std::vector<std::string> file_list)
 {
 	int count = 0;
@@ -110,7 +114,11 @@ std::vector<std::string> select_las(std::vector<std::string> file_list)
 	return select_list;
 }
 
-void readlas(std::string filename, pcl::PointCloud<pcl::PointXYZL>::Ptr &origioncloud,double &Xmin,double &Ymin,double&Zmin)
+void readlas(std::string filename, 
+			 pcl::PointCloud<pcl::PointXYZL>::Ptr &origioncloud,
+			 double &Xmin,
+			 double &Ymin,
+			 double&Zmin)
 {
 	std::fstream fread(filename, std::ios::in | std::ios::binary);
 	if (!fread.is_open())
@@ -146,7 +154,11 @@ void readlas(std::string filename, pcl::PointCloud<pcl::PointXYZL>::Ptr &origion
 	}
 }
 
-void readlas(std::string filename, pcl::PointCloud<pcl::PointXYZ>::Ptr &origioncloud, double &Xmin, double &Ymin, double&Zmin)
+void readlas(std::string filename, 
+			 pcl::PointCloud<pcl::PointXYZ>::Ptr &origioncloud, 
+			 double &Xmin, 
+			 double &Ymin, 
+			 double&Zmin)
 {
 	std::fstream fread(filename, std::ios::in | std::ios::binary);
 	if (!fread.is_open())
@@ -201,7 +213,13 @@ void readlabel(std::string labelname, std::vector<int> &labels)
 	fin2.close();
 }
 
-void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scaleclouds,int nsize, std::string foutname, double Xmin, double Ymin, double Zmin,std::vector<int> &labels)
+void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scaleclouds,
+						int nsize, 
+						std::string foutname, 
+						double Xmin, 
+						double Ymin, 
+						double Zmin,
+						std::vector<int> &labels)
 {
 	std::ofstream foutb(foutname, std::ios::out);
 	std::vector<pcl::search::KdTree<pcl::PointXYZ>::Ptr> trees;
