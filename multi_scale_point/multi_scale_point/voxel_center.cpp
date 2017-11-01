@@ -1,12 +1,14 @@
 #include "voxel_center.h"
 
-VoxelCenter::VoxelCenter(pcl::PointXYZ max_pt, pcl::PointXYZ min_pt):
+VoxelCenter::VoxelCenter(pcl::PointXYZ max_pt, pcl::PointXYZ min_pt,pcl::octree::OctreePointCloudVoxelCentroid<pcl::PointXYZ> &vc_octree):
 	max_pt_(max_pt),
-	min_pt_(min_pt)
+	min_pt_(min_pt),
+	vc_octree_(vc_octree)
 {
 	max_l_ = max_pt_.x - min_pt_.x;
 	max_w_ = max_pt_.y - min_pt_.y;
 	max_h_ = max_pt_.z - min_pt_.z;
+	resolution_ = vc_octree_.getResolution();
 }
 
 VoxelCenter::~VoxelCenter()
@@ -18,9 +20,8 @@ void VoxelCenter::SetDepth(int depth)
 	depth_ = depth;
 }
 
-void VoxelCenter::SetResoluton(float resolution)
+void VoxelCenter::SetOctree(pcl::octree::OctreePointCloudVoxelCentroid<pcl::PointXYZ>& vc_octree)
 {
-	resolution_ = resolution;
 }
 
 bool VoxelCenter::Validate()
@@ -55,33 +56,33 @@ bool VoxelCenter::IsInVoxel(pcl::PointXYZ & cen_p, pcl::PointXYZ & p)
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr VoxelCenter::GetVoxelCenter()
 {
-	float true_res = std::pow(2, depth_) * resolution_;
+	
 	pcl::PointCloud<pcl::PointXYZ>::Ptr res_ptr(new pcl::PointCloud<pcl::PointXYZ>());
 	res_ptr->height = 1;
-	int seg_x = std::ceil(max_l_/ true_res);
-	int seg_y = std::ceil(max_w_/ true_res);
-	int seg_z = std::ceil(max_h_/ true_res);
-	res_ptr->width = seg_x*seg_y*seg_z;
-	res_ptr->resize(seg_x*seg_y*seg_z);
+	//res_ptr->width = seg_x*seg_y*seg_z;
+	//res_ptr->resize(seg_x*seg_y*seg_z);
 
-	pcl::PointXYZ origin;
-	origin.x = min_pt_.x + true_res / 2.0;
-	origin.y = min_pt_.y + true_res / 2.0;
-	origin.z = min_pt_.z + true_res / 2.0;
+	pcl::octree::OctreePointCloudVoxelCentroid<pcl::PointXYZ>::Iterator tree_it;
+	pcl::octree::OctreePointCloudVoxelCentroid<pcl::PointXYZ>::Iterator tree_it_end = vc_octree_.end();
+	int depth = vc_octree_.getTreeDepth() - depth_;
 
 	int count = 0;
-	for (int z = 0; z < seg_z; ++z)
+	for (tree_it = vc_octree_.begin(depth); tree_it != tree_it_end; ++tree_it)
 	{
-		for (int y = 0; y < seg_y; ++y)
-		{
-			for (int x = 0; x < seg_x; ++x)
-			{
-				res_ptr->points[count].x = origin.x + x*true_res;
-				res_ptr->points[count].y = origin.y + y*true_res;
-				res_ptr->points[count].z = origin.z + z*true_res;
-				++count;
-			}
-		}
+		++count;
+	}
+	res_ptr->width = count;
+	res_ptr->points.reserve(count);
+
+	for (tree_it = vc_octree_.begin(depth); tree_it != tree_it_end; ++tree_it)
+	{
+		Eigen::Vector3f voxel_min, voxel_max;
+		vc_octree_.getVoxelBounds(tree_it, voxel_min, voxel_max);
+		pcl::PointXYZ pt;
+		pt.x = (voxel_min.x() + voxel_max.x()) / 2.0f;
+		pt.y = (voxel_min.y() + voxel_max.y()) / 2.0f;
+		pt.z = (voxel_min.z() + voxel_max.z()) / 2.0f;
+		res_ptr->points.push_back(pt);
 	}
 
 	return res_ptr;

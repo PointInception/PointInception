@@ -15,7 +15,6 @@
 DEFINE_string(las_path, "", "point cloud file (.las) path");
 DEFINE_string(output_dir, "", "output dir");
 DEFINE_double(output_res, 0.5, "depth 1 output resolution");
-DEFINE_double(octree_res, 0.5, "octree resolution");
 DEFINE_int32(output_dep, 4, "number of depth");
 
 double goffset_x = 0.0;
@@ -163,7 +162,6 @@ int main(int argc, char** argv)
 	std::string las_path = FLAGS_las_path;
 	std::string output_dir = FLAGS_output_dir;
 	double output_res = FLAGS_output_res;
-	double octree_res = FLAGS_octree_res;
 	int output_dep = FLAGS_output_dep;
 
 	if ("" == las_path)
@@ -195,18 +193,25 @@ int main(int argc, char** argv)
 	ReadLas(las_path, cloud_ptr);
 
 	//≥ı ºªØOctree
-	pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> octree(octree_res);
+	pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> octree(output_res);
 	octree.setInputCloud(cloud_ptr);
 	octree.defineBoundingBox();
 	octree.addPointsFromInputCloud();
 	
+	pcl::octree::OctreePointCloudVoxelCentroid<pcl::PointXYZ> vc_octree(output_res);
+	//create octree structure
+	vc_octree.setInputCloud(cloud_ptr);
+	//update bounding box automatically
+	vc_octree.defineBoundingBox();
+	//add points in the tree
+	vc_octree.addPointsFromInputCloud();
+
 	pcl::PointXYZ min_pt;
 	pcl::PointXYZ max_pt;
 	
 	pcl::getMinMax3D(*cloud_ptr, min_pt, max_pt);
 
-	VoxelCenter voxel_center(max_pt, min_pt);
-	voxel_center.SetResoluton(output_res);
+	VoxelCenter voxel_center(max_pt, min_pt, vc_octree);
 
 	for (int depth = 0; depth < output_dep; ++depth)
 	{
@@ -242,11 +247,6 @@ int main(int argc, char** argv)
 				{
 					filtered_cloud.push_back(p);
 				}
-			}
-			
-			if (i % 10000 == 0)
-			{
-				std::cout << std::to_string(i) <<"/"<< std::to_string(center_point_ptr->size()) << std::endl;
 			}
 		}
 		std::string output_str = output_dir + las_name + "_d" + std::to_string(depth + 1) + ".las";
