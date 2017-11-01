@@ -275,7 +275,10 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 			pcl::copyPointCloud(*tmpcloud, *tmppb.scaleneighbor.at(i));
 		}
 
-		foutb << tmppb.centerp.x + Xmin << " " << tmppb.centerp.y + Ymin << " " << tmppb.centerp.z + Zmin << " " << tmppb.label << ":";
+		foutb << tmppb.centerp.x + Xmin << " " 
+			  << tmppb.centerp.y + Ymin << " " 
+			  << tmppb.centerp.z + Zmin << " " 
+			  << tmppb.label << ":";
 		
 		for (auto it_1 : tmppb.scaleneighbor)
 		{
