@@ -285,7 +285,6 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 			int flag = 0;
 			for (auto it_2 : *it_1)
 			{
-				flag++;
 				if (flag == it_1->size() - 1)
 				{
 					foutb << it_2.x + Xmin
@@ -297,7 +296,8 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 					foutb << it_2.x + Xmin
 						<< " " << it_2.y + Ymin
 						<< " " << it_2.z + Zmin << ",";
-				}				
+				}
+				flag++;
 			}			
 
 			foutb << ";";
