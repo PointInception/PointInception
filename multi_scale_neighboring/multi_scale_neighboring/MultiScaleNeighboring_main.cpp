@@ -255,7 +255,7 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 	std::string foutfile = las_name.substr(0, index);
 	std::ostringstream ostr;
 	ostr << number_of_file;
-	std::string foutfile_txt = foutfile + "_MultiScaleNeighboring.txt" + "_" + ostr.str();
+	std::string foutfile_txt = foutfile + "_MultiScaleNeighboring_" + ostr.str()+ ".txt";
 	std::ofstream foutb(foutfile_txt, std::ios::out);
 	std::vector<pcl::search::KdTree<pcl::PointXYZ>::Ptr> trees;
 	trees.resize(scaleclouds.size());
@@ -293,7 +293,7 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 			std::vector<float> pointSquaredDistance;
 			trees[i]->nearestKSearch(tmppb.centerp, nsize, pointIdxSearch, pointSquaredDistance);
 			//tree->nearestKSearch(tmppb.centerp, nsize, pointIdxSearch, pointSquaredDistance);
-			//std::ofstream fout2("F:\\database\\sematic3d\\trainingdata\\label\\test\\newneighbor.txt", std::ios::out);
+			//std::ofstream fout2("F:\\database\\sematic3d\\trainingdata\\label\\test\\neighbor.txt", std::ios::out);
 			//for (int k = 0; k < pointIdxSearch.size(); k++)
 			//{
 			//	fout2.setf(ios::fixed);
@@ -317,7 +317,7 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 			foutb.close();
 			std::ostringstream ostr2;
 			ostr2 << number_of_file;
-			std::string foutfile_txt = foutfile + "_MultiScaleNeighboring.txt"+"_" + ostr2.str();
+			std::string foutfile_txt = foutfile + "_MultiScaleNeighboring_" + ostr.str() + ".txt";
 			std::ofstream foutb(foutfile_txt, std::ios::out);
 		}
 		outputXYZ(tmppb, foutb, Xmin, Ymin, Zmin);
