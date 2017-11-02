@@ -352,7 +352,9 @@ int main (int argc, char** argv)
 	std::vector<std::string> select_list = select_las(file_list);
 	std::cout << "共有" << select_list.size()<<"个尺度"<< std::endl;
 	double Xmin, Ymin, Zmin;
-	Xmin = Ymin = Zmin = 0;
+	Xmin = 0.0;
+	Ymin = 0.0; 
+	Zmin = 0.0;
 	pcl::PointCloud<pcl::PointXYZ>::Ptr origioncloud(new pcl::PointCloud<pcl::PointXYZ>);
 
 	readlas(select_list[0], origioncloud,Xmin,Ymin,Zmin);
