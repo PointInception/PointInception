@@ -343,7 +343,10 @@ int main (int argc, char** argv)
 	std::string scale_folder = FLAGS_scale_folder;
 	std::string label_folder = FLAGS_label_folder;
 	int nsize = FLAGS_nsize;
-
+	//std::string las_name;
+	//std::string scale_folder;
+	//std::string label_folder;
+	//int nsize=0;
 	std::vector<std::string> file_list = getfilelist(las_name, scale_folder);
 	std::string label_file= getfile(las_name, label_folder);
 	std::vector<std::string> select_list = select_las(file_list);
