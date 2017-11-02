@@ -275,7 +275,7 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 			pcl::copyPointCloud(*tmpcloud, *tmppb.scaleneighbor.at(i));
 		}
 
-		foutb << tmppb.centerp.x + Xmin << " " 
+		foutb << tmppb.centerp.x + Xmin << " "
 			  << tmppb.centerp.y + Ymin << " " 
 			  << tmppb.centerp.z + Zmin << " " 
 			  << tmppb.label << ":";
@@ -285,7 +285,7 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 			int flag = 0;
 			for (auto it_2 : *it_1)
 			{
-				if (flag == it_1->size() - 1)
+				if (flag == it_1->size()-1)
 				{
 					foutb << it_2.x + Xmin
 						<< " " << it_2.y + Ymin
@@ -314,6 +314,13 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 		//	foutb << ";";
 		//}
 		foutb << std::endl;
+		foutb.seekp(0, foutb.end);
+		size_t dstFileSize = foutb.tellp();
+		if (dstFileSize > (1024 * 1024 * 1))
+		{
+			foutb.close();
+		}
+
 	}
 }
 
