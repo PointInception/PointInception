@@ -212,16 +212,51 @@ void readlabel(std::string labelname, std::vector<int> &labels)
 	cout << "label读取完毕" << endl;
 	fin2.close();
 }
+void outputXYZ(Pointneighbor &tmppb, std::ofstream &foutb, 
+		double Xmin,
+		double Ymin,
+		double Zmin )
+{
+	foutb << tmppb.centerp.x + Xmin << " " << tmppb.centerp.y + Ymin << " " << tmppb.centerp.z + Zmin << " " << tmppb.label << ":";
 
+	for (auto it_1 : tmppb.scaleneighbor)
+	{
+		int flag = 0;
+		for (auto it_2 : *it_1)
+		{
+			if (flag == it_1->size() - 1)
+			{
+				foutb << it_2.x + Xmin
+					<< " " << it_2.y + Ymin
+					<< " " << it_2.z + Zmin;
+			}
+			else
+			{
+				foutb << it_2.x + Xmin
+					<< " " << it_2.y + Ymin
+					<< " " << it_2.z + Zmin << ",";
+			}
+			flag++;
+		}
+
+		foutb << ";";
+	}
+}
 void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scaleclouds,
 						int nsize, 
-						std::string foutname, 
+						std::string las_name, 
 						double Xmin, 
 						double Ymin, 
 						double Zmin,
 						std::vector<int> &labels)
 {
-	std::ofstream foutb(foutname, std::ios::out);
+	int number_of_file = 0;
+	int index = las_name.rfind('.');
+	std::string foutfile = las_name.substr(0, index);
+	std::ostringstream ostr;
+	ostr << number_of_file;
+	std::string foutfile_txt = foutfile + "_MultiScaleNeighboring.txt" + "_" + ostr.str();
+	std::ofstream foutb(foutfile_txt, std::ios::out);
 	std::vector<pcl::search::KdTree<pcl::PointXYZ>::Ptr> trees;
 	trees.resize(scaleclouds.size());
 	for (int j = 0; j < trees.size(); j++)
@@ -274,35 +309,18 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 			}
 			pcl::copyPointCloud(*tmpcloud, *tmppb.scaleneighbor.at(i));
 		}
+		int wb = foutb.tellp();
 
-		foutb << tmppb.centerp.x + Xmin << " "
-			  << tmppb.centerp.y + Ymin << " " 
-			  << tmppb.centerp.z + Zmin << " " 
-			  << tmppb.label << ":";
-		
-		for (auto it_1 : tmppb.scaleneighbor)
+		if (wb>1024*1024*1024)//1GB
 		{
-			int flag = 0;
-			for (auto it_2 : *it_1)
-			{
-				if (flag == it_1->size()-1)
-				{
-					foutb << it_2.x + Xmin
-						<< " " << it_2.y + Ymin
-						<< " " << it_2.z + Zmin;
-				}
-				else
-				{
-					foutb << it_2.x + Xmin
-						<< " " << it_2.y + Ymin
-						<< " " << it_2.z + Zmin << ",";
-				}
-				flag++;
-			}			
-
-			foutb << ";";
+			number_of_file++;
+			foutb.close();
+			std::ostringstream ostr2;
+			ostr2 << number_of_file;
+			std::string foutfile_txt = foutfile + "_MultiScaleNeighboring.txt"+"_" + ostr2.str();
+			std::ofstream foutb(foutfile_txt, std::ios::out);
 		}
-
+		outputXYZ(tmppb, foutb, Xmin, Ymin, Zmin);
 		//for (int j = 0; j <tmppb.scaleneighbor.size(); j++)
 		//{
 		//	for (int k = 0; k < tmppb.scaleneighbor.at(j)->size(); k++)
@@ -314,13 +332,6 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 		//	foutb << ";";
 		//}
 		foutb << std::endl;
-		foutb.seekp(0, foutb.end);
-		size_t dstFileSize = foutb.tellp();
-		if (dstFileSize > (1024 * 1024 * 1))
-		{
-			foutb.close();
-		}
-
 	}
 }
 
@@ -332,13 +343,18 @@ int main (int argc, char** argv)
 	std::string scale_folder = FLAGS_scale_folder;
 	std::string label_folder = FLAGS_label_folder;
 	int nsize = FLAGS_nsize;
-
+	//std::string las_name;
+	//std::string scale_folder;
+	//std::string label_folder;
+	//int nsize=0;
 	std::vector<std::string> file_list = getfilelist(las_name, scale_folder);
 	std::string label_file= getfile(las_name, label_folder);
 	std::vector<std::string> select_list = select_las(file_list);
 	std::cout << "共有" << select_list.size()<<"个尺度"<< std::endl;
 	double Xmin, Ymin, Zmin;
-	Xmin = Ymin = Zmin = 0;
+	Xmin = 0.0;
+	Ymin = 0.0; 
+	Zmin = 0.0;
 	pcl::PointCloud<pcl::PointXYZ>::Ptr origioncloud(new pcl::PointCloud<pcl::PointXYZ>);
 
 	readlas(select_list[0], origioncloud,Xmin,Ymin,Zmin);
@@ -372,10 +388,7 @@ int main (int argc, char** argv)
 			readlas(select_list[i], scaleclouds[i], Xmin, Ymin, Zmin);
 		}
 	}
-	int index = select_list[0].rfind('.');
-	std::string foutfile = select_list[0].substr(0, index);
-	foutfile = foutfile + "_MultiScaleNeighboring.txt";
-	neighbor_calculate(scaleclouds, nsize, foutfile, Xmin, Ymin, Zmin,labels);
+	neighbor_calculate(scaleclouds, nsize, las_name, Xmin, Ymin, Zmin,labels);
 	//writepb(allpointn, foutfile, Xmin, Ymin, Zmin);
 	clock_t end_time = clock();
 	std::cout << "共有"<<(start_time - end_time) << "s" << std::endl;
