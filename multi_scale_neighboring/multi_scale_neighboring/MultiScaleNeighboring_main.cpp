@@ -257,6 +257,7 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 	ostr << number_of_file;
 	std::string foutfile_txt = foutfile + "_MultiScaleNeighboring_" + ostr.str()+ ".txt";
 	std::ofstream foutb(foutfile_txt, std::ios::out);
+	std::cout << "正在构建KdTree" << std::endl;
 	std::vector<pcl::search::KdTree<pcl::PointXYZ>::Ptr> trees;
 	trees.resize(scaleclouds.size());
 	for (int j = 0; j < trees.size(); j++)
@@ -268,6 +269,7 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 		}
 		trees[j]->setInputCloud(scaleclouds[j]);
 	}
+	std::cout << "KdTree构建完毕 开始选择"<<nsize<<"个领域点" << std::endl;
 	for (int j = 0; j < scaleclouds[0]->size(); j++)
 	{
 		Pointneighbor tmppb;
@@ -313,12 +315,13 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 
 		if (wb>1024*1024*1024)//1GB
 		{
+			std::cout <<"文件"<< foutfile_txt  << "输出完毕" << std::endl;
 			number_of_file++;
 			foutb.close();
 			std::ostringstream ostr2;
 			ostr2 << number_of_file;
-			std::string foutfile_txt = foutfile + "_MultiScaleNeighboring_" + ostr.str() + ".txt";
-			std::ofstream foutb(foutfile_txt, std::ios::out);
+			foutfile_txt = foutfile + "_MultiScaleNeighboring_" + ostr2.str() + ".txt";
+			foutb.open(foutfile_txt, std::ios::out);
 		}
 		outputXYZ(tmppb, foutb, Xmin, Ymin, Zmin);
 		//for (int j = 0; j <tmppb.scaleneighbor.size(); j++)
@@ -369,6 +372,7 @@ int main (int argc, char** argv)
 	//	allpointn.at(i).centerp = origioncloud->points[i];
 	//	allpointn.at(i).scaleneighbor.resize(select_list.size());
 	//}
+	std::cout << "正在读取多尺度点云" << std::endl;
 	std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> scaleclouds;
 	scaleclouds.resize(select_list.size());
 	for (int i = 0; i < select_list.size(); i++)
@@ -388,10 +392,11 @@ int main (int argc, char** argv)
 			readlas(select_list[i], scaleclouds[i], Xmin, Ymin, Zmin);
 		}
 	}
+	std::cout << "多尺度点云读取完毕！" << std::endl;
 	neighbor_calculate(scaleclouds, nsize, las_name, Xmin, Ymin, Zmin,labels);
 	//writepb(allpointn, foutfile, Xmin, Ymin, Zmin);
 	clock_t end_time = clock();
-	std::cout << "共有"<<(start_time - end_time) << "s" << std::endl;
+	std::cout << "多尺度邻域选择耗时"<<(start_time - end_time) << "s" << std::endl;
     return 0;
 }
 
