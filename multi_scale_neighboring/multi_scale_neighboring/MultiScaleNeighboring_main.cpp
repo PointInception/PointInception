@@ -294,15 +294,7 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 			std::vector<int> pointIdxSearch;
 			std::vector<float> pointSquaredDistance;
 			trees[i]->nearestKSearch(tmppb.centerp, nsize, pointIdxSearch, pointSquaredDistance);
-			//tree->nearestKSearch(tmppb.centerp, nsize, pointIdxSearch, pointSquaredDistance);
-			//std::ofstream fout2("F:\\database\\sematic3d\\trainingdata\\label\\test\\neighbor.txt", std::ios::out);
-			//for (int k = 0; k < pointIdxSearch.size(); k++)
-			//{
-			//	fout2.setf(ios::fixed);
-			//	fout2.precision(6);
-			//	fout2 /*<< pointIdxSearch[k]<< " "*/<< scaleclouds[i]->points[pointIdxSearch[k]].x+Xmin << " " << scaleclouds[i]->points[pointIdxSearch[k]].y+Ymin <<
-			//		" " << scaleclouds[i]->points[pointIdxSearch[k]].z+Zmin << std::endl;
-			//}
+
 			pcl::PointCloud<pcl::PointXYZ>::Ptr tmpcloud(new pcl::PointCloud<pcl::PointXYZ>);
 			tmpcloud->resize(nsize);
 			for (int k = 0; k < pointIdxSearch.size(); k++)
@@ -324,16 +316,7 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 			foutb.open(foutfile_txt, std::ios::out);
 		}
 		outputXYZ(tmppb, foutb, Xmin, Ymin, Zmin);
-		//for (int j = 0; j <tmppb.scaleneighbor.size(); j++)
-		//{
-		//	for (int k = 0; k < tmppb.scaleneighbor.at(j)->size(); k++)
-		//	{
-		//		foutb << tmppb.scaleneighbor.at(j)->points[k].x + Xmin 
-		//			<< " " << tmppb.scaleneighbor.at(j)->points[k].y + Ymin 
-		//			<< " " << tmppb.scaleneighbor.at(j)->points[k].z + Zmin << ",";
-		//	}
-		//	foutb << ";";
-		//}
+
 		foutb << std::endl;
 	}
 }
@@ -362,13 +345,6 @@ int main (int argc, char** argv)
 	labels.resize(origioncloud->size());
 	readlabel(label_file, labels);
 
-	//std::vector<Pointneighbor> allpointn;
-	//allpointn.resize(origioncloud->size());
-	//for (int i = 0; i < allpointn.size(); i++)
-	//{
-	//	allpointn.at(i).centerp = origioncloud->points[i];
-	//	allpointn.at(i).scaleneighbor.resize(select_list.size());
-	//}
 	std::cout << "正在读取多尺度点云" << std::endl;
 	std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> scaleclouds;
 	scaleclouds.resize(select_list.size());
