@@ -272,6 +272,10 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 	std::cout << "KdTree构建完毕 开始选择"<<nsize<<"个领域点" << std::endl;
 	for (int j = 0; j < scaleclouds[0]->size(); j++)
 	{
+		if (labels[j]==0)
+		{
+			continue;
+		}
 		Pointneighbor tmppb;
 		tmppb.centerp.x = scaleclouds[0]->points[j].x;
 		tmppb.centerp.y = scaleclouds[0]->points[j].y;
