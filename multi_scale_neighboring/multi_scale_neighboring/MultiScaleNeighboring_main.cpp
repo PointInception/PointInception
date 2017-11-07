@@ -309,7 +309,7 @@ void neighbor_calculate(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &scalec
 		}
 		int wb = foutb.tellp();
 
-		if (wb>1024*1024*1024)//1GB
+		if (wb>4*1024*1024*1024)//1GB
 		{
 			std::cout <<"文件"<< foutfile_txt  << "输出完毕" << std::endl;
 			number_of_file++;
