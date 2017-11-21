@@ -475,7 +475,7 @@ int main (int argc, char** argv)
 	}
 	else if(file_flag == "test_file")
 	{
-		std::cout << "正在训练测试样本 类别统一设为0" << std::endl;
+		std::cout << "正在训练测试样本 类别统一设为-1" << std::endl;
 	}
 	else
 	{
@@ -500,7 +500,7 @@ int main (int argc, char** argv)
 	}
 	else if (file_flag == "test_file")
 	{
-		labels.resize(origioncloud->size(),0);
+		labels.resize(origioncloud->size(),-1);
 	}
 	std::cout << "正在读取多尺度点云" << std::endl;
 	std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> scaleclouds;
