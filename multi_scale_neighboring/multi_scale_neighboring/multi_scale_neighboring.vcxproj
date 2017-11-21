@@ -157,6 +157,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;EIGEN2_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>E:\liblas\liblas\liblas_include;E:\pcl1.8.0\PCL1.8.0\include\pcl-1.8;E:\pcl1.8.0\PCL1.8.0\3rdParty\Boost\include\boost-1_61;E:\pcl1.8.0\PCL1.8.0\3rdParty\Eigen\eigen3;E:\pcl1.8.0\PCL1.8.0\3rdParty\FLANN\include;E:\pcl1.8.0\PCL1.8.0\3rdParty\nanoflann\nanoflann\include;E:\pcl1.8.0\PCL1.8.0\3rdParty\Eigen;E:\pcl1.8.0\PCL1.8.0\3rdParty\VTK\include\vtk-7.0;E:\gflags-master\include</AdditionalIncludeDirectories>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>No</GenerateDebugInformation>
